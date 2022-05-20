@@ -10,7 +10,7 @@ nextFrame = []
 
 configuration = []
 
-simSpeed = 0.4
+simSpeed = 0.20
 running = False
 
 wrappingLR = True
@@ -206,7 +206,7 @@ def main():
                         dpg.add_button(label="Next Frame", callback=next_frame)
                 with dpg.child_window(width=266, height=35):
                     with dpg.group(horizontal=True):
-                        dpg.add_slider_float(min_value=0.02, max_value=2, width=250, default_value=0.4, callback=change_sim_speed, format="Simulation Speed: %.2fs")
+                        dpg.add_slider_float(min_value=0.01, max_value=2, width=250, default_value=simSpeed, callback=change_sim_speed, format="Simulation Speed: %.2fs")
                 with dpg.child_window(width=156, height=35):
                     with dpg.group(horizontal=True):
                         dpg.add_text("Simulation: ")
