@@ -2,8 +2,6 @@
 
 ![](src/GMF.ico)
 
-The Conway's Game Of Life built in Python using DearPyGui
-
 ---
 ### Features
 
@@ -13,6 +11,10 @@ The Conway's Game Of Life built in Python using DearPyGui
 - Wrapping
 - Simulation Speed (from 0.01s to 2s)
 - Save and Load the board
+
+---
+
+![](src/game.png)
 
 ---
 ### Thank you!
