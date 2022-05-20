@@ -1,6 +1,6 @@
 # DPG Conway's Game Of Life
 
-![](src/GMF.png)
+![](src/GMF.ico)
 
 The Conway's Game Of Life built in Python using DearPyGui
 

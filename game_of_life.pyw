@@ -10,39 +10,47 @@ nextFrame = []
 
 simSpeed = 0.4
 isRunning = False
-wrapping = True
+
+wrappingLR = True
+wrappingTD = True
 
 
 def get_near_cells_amount(cell):
     # get the cells near another one, and returns the count of live cells
-    if wrapping:
+    topLeft, top, topRight, left, right, bottomLeft, bottom, bottomRight = [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]
+
+    if cell[1] != 0:
+        top = colorsId[(cell[0] - 0)][(cell[1] - 1)]
+    if cell[1] != rowAmt - 1:
+        bottom = colorsId[(cell[0] - 0)][(cell[1] + 1)]
+    if cell[0] != 0:
+        left = colorsId[(cell[0] - 1)][(cell[1] - 0)]
+    if cell[0] != columnAmt - 1:
+        right = colorsId[(cell[0] + 1)][(cell[1] - 0)]
+    if cell[0] != 0 and cell[1] != 0:
+        topLeft = colorsId[(cell[0] - 1)][(cell[1] - 1)]
+    if cell[0] != 0 and cell[1] != rowAmt - 1:
+        bottomLeft = colorsId[(cell[0] - 1)][(cell[1] + 1)]
+    if cell[0] != columnAmt - 1 and cell[1] != 0:
+        topRight = colorsId[(cell[0] + 1)][(cell[1] - 1)]
+    if cell[0] != columnAmt - 1 and cell[1] != rowAmt - 1:
+        bottomRight = colorsId[(cell[0] + 1)][(cell[1] + 1)]
+
+    if wrappingTD:
         topLeft = colorsId[(cell[0] - 1) % columnAmt][(cell[1] - 1) % rowAmt]
         top = colorsId[(cell[0] - 0) % columnAmt][(cell[1] - 1) % rowAmt]
         topRight = colorsId[(cell[0] + 1) % columnAmt][(cell[1] - 1) % rowAmt]
-        left = colorsId[(cell[0] - 1) % columnAmt][(cell[1] - 0) % rowAmt]
-        right = colorsId[(cell[0] + 1) % columnAmt][(cell[1] - 0) % rowAmt]
         bottomLeft = colorsId[(cell[0] - 1) % columnAmt][(cell[1] + 1) % rowAmt]
         bottom = colorsId[(cell[0] - 0) % columnAmt][(cell[1] + 1) % rowAmt]
         bottomRight = colorsId[(cell[0] + 1) % columnAmt][(cell[1] + 1) % rowAmt]
-    else:
-        topLeft, top, topRight, left, right, bottomLeft, bottom, bottomRight = [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]
 
-        if cell[1] != 0:
-            top = colorsId[(cell[0] - 0)][(cell[1] - 1)]
-        if cell[1] != rowAmt - 1:
-            bottom = colorsId[(cell[0] - 0)][(cell[1] + 1)]
-        if cell[0] != 0:
-            left = colorsId[(cell[0] - 1)][(cell[1] - 0)]
-        if cell[0] != columnAmt - 1:
-            right = colorsId[(cell[0] + 1)][(cell[1] - 0)]
-        if cell[0] != 0 and cell[1] != 0:
-            topLeft = colorsId[(cell[0] - 1)][(cell[1] - 1)]
-        if cell[0] != 0 and cell[1] != rowAmt - 1:
-            bottomLeft = colorsId[(cell[0] - 1)][(cell[1] + 1)]
-        if cell[0] != columnAmt - 1 and cell[1] != 0:
-            topRight = colorsId[(cell[0] + 1)][(cell[1] - 1)]
-        if cell[0] != columnAmt - 1 and cell[1] != rowAmt - 1:
-            bottomRight = colorsId[(cell[0] + 1)][(cell[1] + 1)]
+    if wrappingLR:
+        topLeft = colorsId[(cell[0] - 1) % columnAmt][(cell[1] - 1) % rowAmt]
+        left = colorsId[(cell[0] - 1) % columnAmt][(cell[1] - 0) % rowAmt]
+        bottomLeft = colorsId[(cell[0] - 1) % columnAmt][(cell[1] + 1) % rowAmt]
+        topRight = colorsId[(cell[0] + 1) % columnAmt][(cell[1] - 1) % rowAmt]
+        right = colorsId[(cell[0] + 1) % columnAmt][(cell[1] - 0) % rowAmt]
+        bottomRight = colorsId[(cell[0] + 1) % columnAmt][(cell[1] + 1) % rowAmt]
 
     near_cells = topLeft, top, topRight, left, right, bottomLeft, bottom, bottomRight
 
@@ -73,7 +81,8 @@ def gen_life(cell):
 def update():
     for i in range(columnAmt):
         for j in range(rowAmt):
-            gen_life([i, j])
+            if get_near_cells_amount([i, j]) != 0 or colorsId[i][j][1]:
+                gen_life([i, j])
 
     # after getting the frame situation, apply it
     for i in nextFrame:
@@ -152,12 +161,11 @@ def change_sim_speed(_s, data):
 
 def set_wrapping(s, data):
     # set the wrapping option
-    global wrapping
-
-    if not isRunning:
-        wrapping = data
-    else:
-        dpg.set_value(s, not data)
+    global wrappingLR, wrappingTD
+    if "LR" in dpg.get_item_label(s):
+        wrappingLR = data
+    elif "TD" in dpg.get_item_label(s):
+        wrappingTD = data
 
 
 def main():
@@ -166,17 +174,24 @@ def main():
 
     with dpg.window():
         dpg.set_primary_window(dpg.last_item(), True)
-        with dpg.group(horizontal=True):
-            # top bar options
-            dpg.add_button(label="Start / Pause Simulation", callback=start_sim)
-            dpg.add_button(label="Stop / Clear Simulation", callback=stop_sim)
-            dpg.add_button(label="Next Frame", callback=next_frame)
-            dpg.add_checkbox(label="Wrapping", default_value=True, callback=set_wrapping)
-            dpg.add_spacer(width=50)
-            dpg.add_slider_float(min_value=0.05, max_value=2, width=250, default_value=0.4, callback=change_sim_speed, format="Simulation Speed: %.2fs")
-            dpg.add_spacer(width=100)
-            dpg.add_text("Simulation: ")
-            dpg.add_text("Stopped", color=[200, 20, 20], tag="RUNNING_SIMULATION_TEXT")
+        with dpg.group(horizontal=True, horizontal_spacing=56, tag="sex"):
+            with dpg.child_window(width=454, height=35):
+                with dpg.group(horizontal=True):
+                    # top bar options
+                    dpg.add_button(label="Start / Pause Simulation", callback=start_sim)
+                    dpg.add_button(label="Stop / Clear Simulation", callback=stop_sim)
+                    dpg.add_button(label="Next Frame", callback=next_frame)
+            with dpg.child_window(width=223, height=35):
+                with dpg.group(horizontal=True):
+                    dpg.add_checkbox(label="TD Wrapping", default_value=True, callback=set_wrapping)
+                    dpg.add_checkbox(label="LR Wrapping", default_value=True, callback=set_wrapping)
+            with dpg.child_window(width=266, height=35):
+                with dpg.group(horizontal=True):
+                    dpg.add_slider_float(min_value=0.02, max_value=2, width=250, default_value=0.4, callback=change_sim_speed, format="Simulation Speed: %.2fs")
+            with dpg.child_window(width=156, height=35):
+                with dpg.group(horizontal=True):
+                    dpg.add_text("Simulation: ")
+                    dpg.add_text("Stopped", color=[200, 20, 20], tag="RUNNING_SIMULATION_TEXT")
 
         # generating the grid
         for i in range(columnAmt):
@@ -184,18 +199,18 @@ def main():
             for j in range(rowAmt):
                 # the dpg.add_color_button haven't a `tooltip` parameter, instead it's used a color_edit with a clicked handler
                 x = dpg.generate_uuid()
-                dpg.add_color_edit(no_tooltip=True, no_inputs=True, no_picker=True, no_drag_drop=True, pos=[i * 18 + 5, j * 18 + 35], tag=x, user_data=[i, j])
+                dpg.add_color_edit(no_tooltip=True, no_inputs=True, no_picker=True, no_drag_drop=True, pos=[i * 18 + 11, j * 18 + 53], tag=x, user_data=[i, j])
                 dpg.bind_item_handler_registry(x, "reg")
                 temp.append([x, False])
             colorsId.append(temp)
 
 
 if __name__ == '__main__':
-    width = 1293
-    height = 806
+    width = 1299
+    height = 824
 
     dpg.create_context()
-    dpg.create_viewport(width=width, max_width=width, min_width=width, height=height, min_height=height, max_height=height, resizable=False)
+    dpg.create_viewport(width=width, max_width=width, min_width=width, height=height, min_height=height, max_height=height, resizable=False, title="DPG Conway's Game Of Life", large_icon="src/GMF.ico", small_icon="src/GMF.ico")
     dpg.setup_dearpygui()
 
     main()
