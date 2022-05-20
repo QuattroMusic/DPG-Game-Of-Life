@@ -3,7 +3,7 @@ from threading import Thread
 from time import sleep
 
 columnAmt = 70
-rowAmt = 40
+rowAmt = 35
 
 colorsId = []
 nextFrame = []
@@ -140,27 +140,32 @@ def stop_sim():
     clear_board()
 
 
+def save():
+    global configuration
+    configuration = [[[k for k in j] for j in i] for i in colorsId]
+
+
 def load():
-    if not running:
-        global colorsId
+    global colorsId
 
-        clear_board()
+    clear_board()
 
-        # load config
-        for i in range(columnAmt):
-            for j in range(rowAmt):
-                if configuration[i][j][1]:
-                    change_color(0, (0, configuration[i][j][0]))
+    # load config
+    for i in range(columnAmt):
+        for j in range(rowAmt):
+            if configuration[i][j][1]:
+                change_color(0, (0, configuration[i][j][0]))
 
 
 def change_color(_s, data):
-    # set color
-    v = dpg.get_value(data[1])
-    dpg.set_value(data[1], [255 - v[0], 255 - v[1], 255 - v[2]])
+    if data[0] == 0:
+        # set color
+        v = dpg.get_value(data[1])
+        dpg.set_value(data[1], [255 - v[0], 255 - v[1], 255 - v[2]])
 
-    # change value on 2D - array
-    cell = dpg.get_item_user_data(data[1])
-    colorsId[cell[0]][cell[1]][1] = not colorsId[cell[0]][cell[1]][1]
+        # change value on 2D - array
+        cell = dpg.get_item_user_data(data[1])
+        colorsId[cell[0]][cell[1]][1] = not colorsId[cell[0]][cell[1]][1]
 
 
 def pause_sim():
@@ -186,40 +191,35 @@ def set_wrapping(s, data):
         wrappingTD = data
 
 
-def save():
-    if not running:
-        global configuration
-        configuration = [[[k for k in j] for j in i] for i in colorsId]
-
-
 def main():
     with dpg.item_handler_registry(tag="reg"):
         dpg.add_item_clicked_handler(callback=change_color)
 
     with dpg.window():
         dpg.set_primary_window(dpg.last_item(), True)
-        with dpg.group(horizontal=True, horizontal_spacing=18):
-            with dpg.child_window(width=454, height=35):
-                with dpg.group(horizontal=True):
-                    # top bar options
-                    dpg.add_button(label="Start / Pause Simulation", callback=start_sim)
-                    dpg.add_button(label="Stop / Clear Simulation", callback=stop_sim)
-                    dpg.add_button(label="Next Frame", callback=next_frame)
-            with dpg.child_window(width=223, height=35):
-                with dpg.group(horizontal=True):
-                    dpg.add_checkbox(label="TD Wrapping", default_value=True, callback=set_wrapping)
-                    dpg.add_checkbox(label="LR Wrapping", default_value=True, callback=set_wrapping)
-            with dpg.child_window(width=96, height=35):
-                with dpg.group(horizontal=True):
-                    dpg.add_button(label="Save", callback=save)
-                    dpg.add_button(label="Load", callback=load)
-            with dpg.child_window(width=266, height=35):
-                with dpg.group(horizontal=True):
-                    dpg.add_slider_float(min_value=0.02, max_value=2, width=250, default_value=0.4, callback=change_sim_speed, format="Simulation Speed: %.2fs")
-            with dpg.child_window(width=156, height=35):
-                with dpg.group(horizontal=True):
-                    dpg.add_text("Simulation: ")
-                    dpg.add_text("Stopped", color=[200, 20, 20], tag="RUNNING_SIMULATION_TEXT")
+        with dpg.child_window(width=-1, height=90):
+            with dpg.group(horizontal=True, horizontal_spacing=60):
+                with dpg.child_window(width=470, height=35):
+                    with dpg.group(horizontal=True, horizontal_spacing=15):
+                        dpg.add_button(label="Start / Pause Simulation", callback=start_sim)
+                        dpg.add_button(label="Stop / Clear Simulation", callback=stop_sim)
+                        dpg.add_button(label="Next Frame", callback=next_frame)
+                with dpg.child_window(width=266, height=35):
+                    with dpg.group(horizontal=True):
+                        dpg.add_slider_float(min_value=0.02, max_value=2, width=250, default_value=0.4, callback=change_sim_speed, format="Simulation Speed: %.2fs")
+                with dpg.child_window(width=156, height=35):
+                    with dpg.group(horizontal=True):
+                        dpg.add_text("Simulation: ")
+                        dpg.add_text("Stopped", color=[200, 20, 20], tag="RUNNING_SIMULATION_TEXT")
+            with dpg.group(horizontal=True, horizontal_spacing=60):
+                with dpg.child_window(width=230, height=35):
+                    with dpg.group(horizontal=True, horizontal_spacing=15):
+                        dpg.add_checkbox(label="TD Wrapping", default_value=True, callback=set_wrapping)
+                        dpg.add_checkbox(label="LR Wrapping", default_value=True, callback=set_wrapping)
+                with dpg.child_window(width=187, height=35):
+                    with dpg.group(horizontal=True, horizontal_spacing=15):
+                        dpg.add_button(label="Save Board", callback=save)
+                        dpg.add_button(label="Load Board", callback=load)
 
         # generating the grid
         for i in range(columnAmt):
@@ -227,16 +227,23 @@ def main():
             for j in range(rowAmt):
                 # the dpg.add_color_button haven't a `tooltip` parameter, instead it's used a color_edit with a clicked handler
                 x = dpg.generate_uuid()
-                dpg.add_color_edit(no_tooltip=True, no_inputs=True, no_picker=True, no_drag_drop=True, pos=[i * 18 + 11, j * 18 + 53], tag=x, user_data=[i, j])
+                dpg.add_color_edit(no_tooltip=True, no_inputs=True, no_picker=True, no_drag_drop=True, pos=[i * 18 + 11, j * 18 + 105], tag=x, user_data=[i, j])
                 dpg.bind_item_handler_registry(x, "reg")
                 temp.append([x, False])
             colorsId.append(temp)
             configuration.append(temp)
 
+    with dpg.theme() as theme:
+        with dpg.theme_component():
+            dpg.add_theme_style(dpg.mvStyleVar_ChildRounding, 4)
+            dpg.add_theme_style(dpg.mvStyleVar_FrameRounding, 4)
+
+    dpg.bind_theme(theme)
+
 
 if __name__ == '__main__':
-    width = 1299
-    height = 824
+    width = 18 * columnAmt + 39
+    height = 18 * rowAmt + 156
 
     dpg.create_context()
     dpg.create_viewport(width=width, max_width=width, min_width=width, height=height, min_height=height, max_height=height, resizable=False, title="DPG Conway's Game Of Life", large_icon="src/GMF.ico", small_icon="src/GMF.ico")

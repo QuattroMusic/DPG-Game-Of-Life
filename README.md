@@ -7,7 +7,7 @@ The Conway's Game Of Life built in Python using DearPyGui
 ---
 ### Features
 
-- A 70 x 40 grid
+- A 70 x 35 grid
 - Start, Pause And Stop Button
 - Next Frame
 - Wrapping
