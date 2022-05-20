@@ -15,4 +15,4 @@ The Conway's Game Of Life made in Python using DearPyGui
 
 ---
 
-Thanks DPG for your hard work that you have put in this library!
+Thanks [DPG's](https://github.com/hoffstadt/DearPyGui) team for the hard work that you have put in this library!
