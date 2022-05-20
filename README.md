@@ -12,6 +12,7 @@ The Conway's Game Of Life built in Python using DearPyGui
 - Next Frame
 - Wrapping
 - Simulation Speed (from 0.02s to 2s)
+- Save and Load the board
 
 ---
 ### Thank you!
