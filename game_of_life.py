@@ -73,9 +73,7 @@ def gen_life(cell):
 def update():
     for i in range(columnAmt):
         for j in range(rowAmt):
-            if get_near_cells_amount([i, j]) != 0:
-                # small 'optimization', affects only cells with nearby white ones
-                gen_life([i, j])
+            gen_life([i, j])
 
     # after getting the frame situation, apply it
     for i in nextFrame:
