@@ -2,7 +2,7 @@
 
 ![](src/GMF.png)
 
-The Conway's Game Of Life made in Python using DearPyGui
+The Conway's Game Of Life built in Python using DearPyGui
 
 ---
 ### Features
