@@ -8,8 +8,10 @@ rowAmt = 40
 colorsId = []
 nextFrame = []
 
+configuration = []
+
 simSpeed = 0.4
-isRunning = False
+running = False
 
 wrappingLR = True
 wrappingTD = True
@@ -95,44 +97,60 @@ def run():
     # thread function, starts the simulation in another thread
     dpg.set_value("RUNNING_SIMULATION_TEXT", "Running")
     dpg.configure_item("RUNNING_SIMULATION_TEXT", color=[20, 200, 20])
-    while isRunning:
+    while running:
         update()
         sleep(simSpeed)
 
 
 def start_sim():
-    global isRunning
+    global running
 
     # starts the simulation
-    if not isRunning:
-        isRunning = True
+    if not running:
+        running = True
         Thread(target=run, daemon=True).start()
     else:
-        isRunning = False
+        running = False
         dpg.set_value("RUNNING_SIMULATION_TEXT", "Stopped")
         dpg.configure_item("RUNNING_SIMULATION_TEXT", color=[200, 30, 20])
 
 
 def next_frame():
     # generate the next frame only
-    if isRunning is False:
+    if running is False:
         update()
+
+
+def clear_board():
+    for i in range(columnAmt):
+        for j in range(rowAmt):
+            if colorsId[i][j][1]:
+                change_color(0, (0, colorsId[i][j][0]))
 
 
 def stop_sim():
     # stop the simulation
-    global isRunning
-    isRunning = False
+    global running
+    running = False
 
     # set texts
     dpg.set_value("RUNNING_SIMULATION_TEXT", "Stopped")
     dpg.configure_item("RUNNING_SIMULATION_TEXT", color=[200, 30, 20])
 
-    # clear all the board
-    for i in range(columnAmt):
-        for j in range(rowAmt):
-            if colorsId[i][j][1]:
-                change_color(0, (0, colorsId[i][j][0]))
+    clear_board()
+
+
+def load():
+    if not running:
+        global colorsId
+
+        clear_board()
+
+        # load config
+        for i in range(columnAmt):
+            for j in range(rowAmt):
+                if configuration[i][j][1]:
+                    change_color(0, (0, configuration[i][j][0]))
 
 
 def change_color(_s, data):
@@ -147,8 +165,8 @@ def change_color(_s, data):
 
 def pause_sim():
     # pauses the simulation
-    global isRunning
-    isRunning = False
+    global running
+    running = False
     dpg.set_value("RUNNING_SIMULATION_TEXT", "Stopped")
     dpg.configure_item("RUNNING_SIMULATION_TEXT", color=[200, 30, 20])
 
@@ -168,13 +186,19 @@ def set_wrapping(s, data):
         wrappingTD = data
 
 
+def save():
+    if not running:
+        global configuration
+        configuration = [[[k for k in j] for j in i] for i in colorsId]
+
+
 def main():
     with dpg.item_handler_registry(tag="reg"):
         dpg.add_item_clicked_handler(callback=change_color)
 
     with dpg.window():
         dpg.set_primary_window(dpg.last_item(), True)
-        with dpg.group(horizontal=True, horizontal_spacing=56, tag="sex"):
+        with dpg.group(horizontal=True, horizontal_spacing=18):
             with dpg.child_window(width=454, height=35):
                 with dpg.group(horizontal=True):
                     # top bar options
@@ -185,6 +209,10 @@ def main():
                 with dpg.group(horizontal=True):
                     dpg.add_checkbox(label="TD Wrapping", default_value=True, callback=set_wrapping)
                     dpg.add_checkbox(label="LR Wrapping", default_value=True, callback=set_wrapping)
+            with dpg.child_window(width=96, height=35):
+                with dpg.group(horizontal=True):
+                    dpg.add_button(label="Save", callback=save)
+                    dpg.add_button(label="Load", callback=load)
             with dpg.child_window(width=266, height=35):
                 with dpg.group(horizontal=True):
                     dpg.add_slider_float(min_value=0.02, max_value=2, width=250, default_value=0.4, callback=change_sim_speed, format="Simulation Speed: %.2fs")
@@ -203,6 +231,7 @@ def main():
                 dpg.bind_item_handler_registry(x, "reg")
                 temp.append([x, False])
             colorsId.append(temp)
+            configuration.append(temp)
 
 
 if __name__ == '__main__':
