@@ -1,4 +1,4 @@
-# DPG-Game-Of-Life
+# DPG Conway's Game Of Life
 
 ![](src/GMF.png)
 
