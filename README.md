@@ -9,7 +9,7 @@
 - Start, Pause And Stop Button
 - Next Frame
 - Wrapping
-- Simulation Speed (from 0.01s to 2s)
+- Changeable Refresh Rate, aka Simulation Speed (x0.5 to x100, where x1 = 1sec)
 - Save and Load the board
 
 ---
