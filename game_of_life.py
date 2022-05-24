@@ -158,14 +158,13 @@ def load():
 
 
 def change_color(_s, data):
-    if data[0] == 0:
-        # set color
-        v = dpg.get_value(data[1])
-        dpg.set_value(data[1], [255 - v[0], 255 - v[1], 255 - v[2]])
+    # set color
+    v = dpg.get_value(data[1])
+    dpg.set_value(data[1], [255 - v[0], 255 - v[1], 255 - v[2]])
 
-        # change value on 2D - array
-        cell = dpg.get_item_user_data(data[1])
-        colorsId[cell[0]][cell[1]][1] = not colorsId[cell[0]][cell[1]][1]
+    # change value on 2D - array
+    cell = dpg.get_item_user_data(data[1])
+    colorsId[cell[0]][cell[1]][1] = not colorsId[cell[0]][cell[1]][1]
 
 
 def pause_sim():
@@ -204,7 +203,7 @@ def set_wrapping(s, data):
 
 def main():
     with dpg.item_handler_registry(tag="reg"):
-        dpg.add_item_clicked_handler(callback=change_color)
+        dpg.add_item_clicked_handler(callback=change_color, button=0)
 
     with dpg.window():
         dpg.set_primary_window(dpg.last_item(), True)
