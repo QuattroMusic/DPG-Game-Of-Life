@@ -178,18 +178,10 @@ def pause_sim():
 def change_sim_speed(s, data):
     # changes the simulation speed
     global simSpeed
-    simSpeed = data
-    if data <= 1:
-        data = 1 / data
-    else:
-        # warning math
-        tension = 0.92
-        t = 1 - (4 * tension) / ((1 + tension) ** 2)
-        data = 2 * (data - 1)
-        data = 1 + ((t ** data - 1) / (t - 1)) * (0.01 - 1)
 
-    simSpeed = round(data, 2)
-    dpg.configure_item(s, format=f"Simulation Speed: x{round(1 / data, 2)}")
+    data = 10 ** data
+    simSpeed = 1 / data
+    dpg.configure_item(s, format=f"Simulation Speed: x{round(data, 2)}")
 
 
 def set_wrapping(s, data):
@@ -216,7 +208,7 @@ def main():
                         dpg.add_button(label="Next Frame", callback=next_frame)
                 with dpg.child_window(width=266, height=35):
                     with dpg.group(horizontal=True):
-                        dpg.add_slider_float(min_value=0.5, max_value=1.5, width=250, default_value=1, callback=change_sim_speed, format="Simulation Speed: x1")
+                        dpg.add_slider_float(min_value=0, max_value=2, width=250, default_value=0.699, callback=change_sim_speed, format=f"Simulation Speed: x{round(10 ** 0.699, 2)}")
                 with dpg.child_window(width=156, height=35):
                     with dpg.group(horizontal=True):
                         dpg.add_text("Simulation: ")
